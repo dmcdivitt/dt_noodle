@@ -38,6 +38,8 @@ Partial Class Form1
         Me.ToolStripMenuItemNew = New System.Windows.Forms.ToolStripMenuItem()
         Me.NotifyIcon1 = New System.Windows.Forms.NotifyIcon(Me.components)
         Me.ContextMenuStrip2 = New System.Windows.Forms.ContextMenuStrip(Me.components)
+        Me.ToolStripMenuItemSave = New System.Windows.Forms.ToolStripMenuItem()
+        Me.ToolStripMenuItemRestore = New System.Windows.Forms.ToolStripMenuItem()
         Me.ToolStripMenuItemShow = New System.Windows.Forms.ToolStripMenuItem()
         Me.ToolStripMenuItemUnload = New System.Windows.Forms.ToolStripMenuItem()
         Me.Button1 = New System.Windows.Forms.Button()
@@ -144,21 +146,33 @@ Partial Class Form1
         'ContextMenuStrip2
         '
         Me.ContextMenuStrip2.Font = New System.Drawing.Font("Segoe UI", 9.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.ContextMenuStrip2.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.ToolStripMenuItemShow, Me.ToolStripMenuItemUnload})
+        Me.ContextMenuStrip2.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.ToolStripMenuItemSave, Me.ToolStripMenuItemRestore, Me.ToolStripMenuItemShow, Me.ToolStripMenuItemUnload})
         Me.ContextMenuStrip2.Name = "ContextMenuStrip2"
         Me.ContextMenuStrip2.ShowImageMargin = False
-        Me.ContextMenuStrip2.Size = New System.Drawing.Size(87, 48)
+        Me.ContextMenuStrip2.Size = New System.Drawing.Size(172, 114)
+        '
+        'ToolStripMenuItemSave
+        '
+        Me.ToolStripMenuItemSave.Name = "ToolStripMenuItemSave"
+        Me.ToolStripMenuItemSave.Size = New System.Drawing.Size(171, 22)
+        Me.ToolStripMenuItemSave.Text = "save current desktop"
+        '
+        'ToolStripMenuItemRestore
+        '
+        Me.ToolStripMenuItemRestore.Name = "ToolStripMenuItemRestore"
+        Me.ToolStripMenuItemRestore.Size = New System.Drawing.Size(171, 22)
+        Me.ToolStripMenuItemRestore.Text = "restore current desktop"
         '
         'ToolStripMenuItemShow
         '
         Me.ToolStripMenuItemShow.Name = "ToolStripMenuItemShow"
-        Me.ToolStripMenuItemShow.Size = New System.Drawing.Size(86, 22)
+        Me.ToolStripMenuItemShow.Size = New System.Drawing.Size(171, 22)
         Me.ToolStripMenuItemShow.Text = "show"
         '
         'ToolStripMenuItemUnload
         '
         Me.ToolStripMenuItemUnload.Name = "ToolStripMenuItemUnload"
-        Me.ToolStripMenuItemUnload.Size = New System.Drawing.Size(86, 22)
+        Me.ToolStripMenuItemUnload.Size = New System.Drawing.Size(171, 22)
         Me.ToolStripMenuItemUnload.Text = "unload"
         '
         'Button1
@@ -281,4 +295,6 @@ Partial Class Form1
     Friend WithEvents Button2 As Button
     Friend WithEvents Label4 As Label
     Friend WithEvents Timer1 As Timer
+    Friend WithEvents ToolStripMenuItemSave As ToolStripMenuItem
+    Friend WithEvents ToolStripMenuItemRestore As ToolStripMenuItem
 End Class

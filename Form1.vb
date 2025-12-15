@@ -26,13 +26,14 @@ Public Class Form1
   Public _option_login As Boolean, _option_tray As Boolean, _option_save As Boolean
 
   Private Sub add_desktop_row(idx As Integer, name$, path$)
+    Const c_height As Integer = 20
     Panel1.Controls.Add(New Label With {
                    .AutoSize = False,
                    .ContextMenuStrip = ContextMenuStrip1,
                    .Location = New Point(0, _panel_control_top),
                    .Margin = New Padding(0),
                    .Name = "d_name_" & idx.ToString("000"),
-                   .Size = New Drawing.Size(170, 20),
+                   .Size = New Drawing.Size(170, c_height),
                    .Tag = idx,
                    .Text = name,
                    .TextAlign = ContentAlignment.MiddleLeft
@@ -43,7 +44,7 @@ Public Class Form1
                    .Location = New Point(174, _panel_control_top),
                    .Margin = New Padding(0),
                    .Name = "d_select_" & idx.ToString("000"),
-                   .Size = New Drawing.Size(51, 20),
+                   .Size = New Drawing.Size(51, c_height),
                    .Tag = idx,
                    .Text = "select"
                    })
@@ -53,14 +54,14 @@ Public Class Form1
                    .Location = New Point(230, _panel_control_top),
                    .Margin = New Padding(0),
                    .Name = "d_open_" & idx.ToString("000"),
-                   .Size = New Drawing.Size(51, 20),
+                   .Size = New Drawing.Size(51, c_height),
                    .Tag = idx,
                    .Text = "open"
                    })
     AddHandler Panel1.Controls(Panel1.Controls.Count - 1).Click, AddressOf d_open_click
     If idx = 0 Then ReDim _desktop_path(idx) Else ReDim Preserve _desktop_path(idx)
     _desktop_path(idx) = path
-    _panel_control_top += 22
+    _panel_control_top += c_height + 2
   End Sub
 
   Private Sub Button1_Click(sender As Object, e As EventArgs) Handles Button1.Click
@@ -283,7 +284,13 @@ Public Class Form1
     _in_option = True
     Form3.ShowDialog()
     _in_option = False
-    If NotifyIcon1.Visible <> _option_tray Then NotifyIcon1.Visible = _option_tray
+    If NotifyIcon1.Visible <> _option_tray Then
+      NotifyIcon1.Visible = _option_tray
+      Dim c As Control = Panel1.Controls("d_information")
+      Panel1.Controls.Remove(c)
+      c.Dispose()
+      populate_panel_info()
+    End If
     config_save()
   End Sub
 
@@ -384,6 +391,7 @@ Public Class Form1
       Else
         MsgBox("the current desktop path is not configured and" & vbCrLf &
                "a desktop named ""default"" is already present", vbOK Or vbSystemModal, _msgbox_title)
+        _system_tray_exit = True
         Close()
         Exit Sub
       End If
@@ -397,22 +405,21 @@ Public Class Form1
 
   Private Sub populate_panel_info()
     Panel1.Controls.Add(New Label With {
-                   .AutoSize = False,
+                   .AutoSize = True,
                    .ForeColor = Color.Green,
                    .Location = New Point(0, _panel_control_top),
                    .Margin = New Padding(0),
                    .Name = "d_information",
-                   .Size = New Drawing.Size(170, 20),
-                   .Text = "right click name for actions",
+                   .Text = "right click name for actions" & IIf(_option_tray, vbCrLf & "right click tray icon to exit", ""),
                    .TextAlign = ContentAlignment.MiddleCenter
                    })
   End Sub
 
-  Private Sub RoundedButton1_Click(sender As Object, e As EventArgs) Handles RoundedButton1.Click
+  Private Sub RoundedButton1_Click(sender As Object, e As EventArgs) Handles RoundedButton1.Click, ToolStripMenuItemSave.Click
     DesktopIconManager.LayoutSave(cache_file_name(True))
   End Sub
 
-  Private Sub RoundedButton2_Click(sender As Object, e As EventArgs) Handles RoundedButton2.Click
+  Private Sub RoundedButton2_Click(sender As Object, e As EventArgs) Handles RoundedButton2.Click, ToolStripMenuItemRestore.Click
     Panel1.SuspendLayout()
     DesktopIconManager.LayoutRestore(cache_file_name(False))
     Panel1.ResumeLayout()
