@@ -1,4 +1,4 @@
-[![Download](https://img.shields.io/badge/Download-dt__noodle.exe-blue?style=for-the-badge&logo=windows)](https://github.com/dmcdivitt/dt_noodle/releases/download/release_20251218b/dt_noodle.1.0.5.1.zip)  [![MajorGeeks](https://img.shields.io/badge/Mirror-MajorGeeks-green?style=for-the-badge)](https://www.majorgeeks.com/)
+[![Download](https://img.shields.io/badge/Download-dt__noodle.exe-blue?style=for-the-badge&logo=windows)](https://github.com/dmcdivitt/dt_noodle/releases/download/release_20251218b/dt_noodle.1.0.5.1.zip)  [![MajorGeeks](https://img.shields.io/badge/Mirror-MajorGeeks-green?style=for-the-badge)](https://www.majorgeeks.com/files/details/desktop_noodle.html)
 
 <img width="500" height="500" alt="dt_noodle2" src="https://github.com/user-attachments/assets/befcaea0-1285-4d9b-9871-c1071155364d" />
 
