@@ -19,4 +19,8 @@
     Form1._option_save = CheckBox3.Checked
   End Sub
 
+  Private Sub LinkLabel1_LinkClicked(sender As Object, e As LinkLabelLinkClickedEventArgs) Handles LinkLabel1.LinkClicked
+    Process.Start("https://github.com/dmcdivitt/dt_noodle")
+  End Sub
+
 End Class
