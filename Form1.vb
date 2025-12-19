@@ -84,25 +84,6 @@ Public Class Form1
     SetForegroundWindow(Handle)
   End Sub
 
-  Private Sub config_save(Optional skip_for_delete As Integer = -1)
-    Static backup_was_done As Boolean = False
-    If Not backup_was_done Then
-      backup_was_done = True
-      Dim backup_file$ = _config_file.Substring(0, _config_file.Length - 3) & "bak"
-      If IO.File.Exists(backup_file) Then IO.File.Delete(backup_file)
-      IO.File.Move(_config_file, backup_file)
-    End If
-    With New StreamWriter(_config_file, False)
-      If Not _option_login Then .WriteLine("login=no")
-      If Not _option_tray Then .WriteLine("tray=no")
-      If Not _option_save Then .WriteLine("save=no")
-      For f1 As Integer = 0 To (_desktop_path.Length - 1)
-        If f1 <> skip_for_delete Then .WriteLine("path=" & Panel1.Controls("d_name_" & f1.ToString("000")).Text & "*" & _desktop_path(f1))
-      Next f1
-      .Close()
-    End With
-  End Sub
-
   Private Function cache_file_name$(for_writing As Boolean)
     Dim screen_width As Integer = System.Windows.Forms.Screen.PrimaryScreen.Bounds.Width, base_name$ = "." & _desktop_path(_idx_current).Replace("\", "_").Replace(":", "_") & ".$"
     Dim default_path$ = _cache_folder & "\" & screen_width & base_name
@@ -129,6 +110,27 @@ Public Class Form1
     If lowest_above_idx <> -1 Then Return file_list(lowest_above_idx)
     Return ""
   End Function
+
+  Private Sub config_save(Optional skip_for_delete As Integer = -1)
+    Static backup_was_done As Boolean = False
+    If Panel1.Controls.Count > 0 Then
+      If Not backup_was_done Then
+        backup_was_done = True
+        Dim backup_file$ = _config_file.Substring(0, _config_file.Length - 3) & "bak"
+        If IO.File.Exists(backup_file) Then IO.File.Delete(backup_file)
+        IO.File.Move(_config_file, backup_file)
+      End If
+      With New StreamWriter(_config_file, False)
+        If Not _option_login Then .WriteLine("login=no")
+        If Not _option_tray Then .WriteLine("tray=no")
+        If Not _option_save Then .WriteLine("save=no")
+        For f1 As Integer = 0 To (_desktop_path.Length - 1)
+          If f1 <> skip_for_delete Then .WriteLine("path=" & Panel1.Controls("d_name_" & f1.ToString("000")).Text & "*" & _desktop_path(f1))
+        Next f1
+        .Close()
+      End With
+    End If
+  End Sub
 
   Private Sub d_name_mousedown(sender As Object, e As EventArgs)
     _idx_edit = DirectCast(sender, Label).Tag
@@ -284,7 +286,7 @@ Public Class Form1
     _in_option = True
     Form3.ShowDialog()
     _in_option = False
-    If NotifyIcon1.Visible <> _option_tray Then
+    If (Not IsNothing(NotifyIcon1)) AndAlso NotifyIcon1.Visible <> _option_tray Then
       NotifyIcon1.Visible = _option_tray
       Dim c As Control = Panel1.Controls("d_information")
       Panel1.Controls.Remove(c)
