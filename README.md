@@ -1,4 +1,4 @@
-[![Download](https://img.shields.io/badge/Download-dt__noodle.exe-blue?style=for-the-badge&logo=windows)](https://github.com/dmcdivitt/dt_noodle/releases/download/release_20251215/dt_noodle.1.0.4.1.zip)
+[![Download](https://img.shields.io/badge/Download-dt__noodle.exe-blue?style=for-the-badge&logo=windows)](https://github.com/dmcdivitt/dt_noodle/releases/download/release_20251218/dt_noodle.1.0.4.1.zip)
 
 <img width="500" height="500" alt="dt_noodle2" src="https://github.com/user-attachments/assets/befcaea0-1285-4d9b-9871-c1071155364d" />
 
