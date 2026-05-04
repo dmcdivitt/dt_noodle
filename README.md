@@ -1,4 +1,4 @@
-USE THE RELEASE LINK TO DOWNLOAD EXECUTABLE. THIS DOES THE PREVIOUS VERSION UNTIL CHANGED.
+USE THE RELEASE LINK TO DOWNLOAD EXECUTABLE. THIS DOES THE PREVIOUS VERSION UNTIL CHANGED.<br>
 UPDATE ADDS HOTHEY FUNCTIONALITY AND QUICK DESKTOP SELECTION.
 
 [![Download](https://img.shields.io/badge/Download-dt__noodle.exe-blue?style=for-the-badge&logo=windows)](https://github.com/dmcdivitt/dt_noodle/releases/download/release_20251218b/dt_noodle.1.0.5.1.zip)  [![MajorGeeks](https://img.shields.io/badge/Listed-MajorGeeks-green?style=for-the-badge)](https://www.majorgeeks.com/files/details/desktop_noodle.html)
