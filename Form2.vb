@@ -1,4 +1,5 @@
-﻿Public Class Form2
+Public Class Form2
+
   Private Sub Form2_Load(sender As Object, e As EventArgs) Handles Me.Load
     TextBox2.Enabled = Form1._idx_edit <> Form1._idx_current
     RoundedButton2.Enabled = TextBox2.Enabled
@@ -7,7 +8,7 @@
       TextBox2.Text = ""
       Text = "New Desktop Definition"
     Else
-      TextBox1.Text = Form1.Panel1.Controls("d_name_" & Form1._idx_edit.ToString("000")).Text
+      TextBox1.Text = Form1.Panel2.Controls("d_name_" & Form1._idx_edit.ToString("000")).Text
       TextBox2.Text = Form1._desktop_path(Form1._idx_edit)
       Text = "Edit: " & TextBox1.Text
     End If

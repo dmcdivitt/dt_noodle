@@ -42,14 +42,20 @@ Partial Class Form1
         Me.ToolStripMenuItemRestore = New System.Windows.Forms.ToolStripMenuItem()
         Me.ToolStripMenuItemShow = New System.Windows.Forms.ToolStripMenuItem()
         Me.ToolStripMenuItemUnload = New System.Windows.Forms.ToolStripMenuItem()
-        Me.Button1 = New System.Windows.Forms.Button()
-        Me.Button2 = New System.Windows.Forms.Button()
         Me.Label4 = New System.Windows.Forms.Label()
         Me.Timer1 = New System.Windows.Forms.Timer(Me.components)
+        Me.Panel2 = New System.Windows.Forms.Panel()
+        Me.RotatedLabel1 = New dt_noodle.RotatedLabel()
         Me.RoundedButton2 = New dt_noodle.RoundedButton()
         Me.RoundedButton1 = New dt_noodle.RoundedButton()
+        Me.PictureBox1 = New System.Windows.Forms.PictureBox()
+        Me.Label5 = New System.Windows.Forms.Label()
+        Me.Button2 = New System.Windows.Forms.Button()
+        Me.Button1 = New System.Windows.Forms.Button()
         Me.ContextMenuStrip1.SuspendLayout()
         Me.ContextMenuStrip2.SuspendLayout()
+        Me.Panel2.SuspendLayout()
+        CType(Me.PictureBox1, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SuspendLayout()
         '
         'Label1
@@ -86,6 +92,7 @@ Partial Class Form1
         '
         Me.Panel1.AutoScroll = True
         Me.Panel1.Location = New System.Drawing.Point(0, 43)
+        Me.Panel1.Margin = New System.Windows.Forms.Padding(0)
         Me.Panel1.Name = "Panel1"
         Me.Panel1.Size = New System.Drawing.Size(300, 211)
         Me.Panel1.TabIndex = 0
@@ -149,7 +156,7 @@ Partial Class Form1
         Me.ContextMenuStrip2.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.ToolStripMenuItemSave, Me.ToolStripMenuItemRestore, Me.ToolStripMenuItemShow, Me.ToolStripMenuItemUnload})
         Me.ContextMenuStrip2.Name = "ContextMenuStrip2"
         Me.ContextMenuStrip2.ShowImageMargin = False
-        Me.ContextMenuStrip2.Size = New System.Drawing.Size(172, 114)
+        Me.ContextMenuStrip2.Size = New System.Drawing.Size(172, 92)
         '
         'ToolStripMenuItemSave
         '
@@ -175,28 +182,6 @@ Partial Class Form1
         Me.ToolStripMenuItemUnload.Size = New System.Drawing.Size(171, 22)
         Me.ToolStripMenuItemUnload.Text = "unload"
         '
-        'Button1
-        '
-        Me.Button1.ForeColor = System.Drawing.SystemColors.ControlText
-        Me.Button1.Location = New System.Drawing.Point(88, 6)
-        Me.Button1.Margin = New System.Windows.Forms.Padding(0)
-        Me.Button1.Name = "Button1"
-        Me.Button1.Size = New System.Drawing.Size(26, 20)
-        Me.Button1.TabIndex = 9
-        Me.Button1.Text = "Button1"
-        Me.Button1.UseVisualStyleBackColor = True
-        '
-        'Button2
-        '
-        Me.Button2.ForeColor = System.Drawing.SystemColors.ControlText
-        Me.Button2.Location = New System.Drawing.Point(114, 6)
-        Me.Button2.Margin = New System.Windows.Forms.Padding(0)
-        Me.Button2.Name = "Button2"
-        Me.Button2.Size = New System.Drawing.Size(26, 20)
-        Me.Button2.TabIndex = 10
-        Me.Button2.Text = "Button2"
-        Me.Button2.UseVisualStyleBackColor = True
-        '
         'Label4
         '
         Me.Label4.Location = New System.Drawing.Point(174, 0)
@@ -210,6 +195,36 @@ Partial Class Form1
         'Timer1
         '
         Me.Timer1.Interval = 500
+        '
+        'Panel2
+        '
+        Me.Panel2.BackColor = System.Drawing.SystemColors.Control
+        Me.Panel2.Controls.Add(Me.RotatedLabel1)
+        Me.Panel2.Controls.Add(Me.Label4)
+        Me.Panel2.Controls.Add(Me.Panel1)
+        Me.Panel2.Controls.Add(Me.RoundedButton2)
+        Me.Panel2.Controls.Add(Me.RoundedButton1)
+        Me.Panel2.Controls.Add(Me.Label3)
+        Me.Panel2.Controls.Add(Me.Label2)
+        Me.Panel2.Controls.Add(Me.Label1)
+        Me.Panel2.Location = New System.Drawing.Point(15, 15)
+        Me.Panel2.Margin = New System.Windows.Forms.Padding(0)
+        Me.Panel2.Name = "Panel2"
+        Me.Panel2.Size = New System.Drawing.Size(300, 254)
+        Me.Panel2.TabIndex = 0
+        '
+        'RotatedLabel1
+        '
+        Me.RotatedLabel1.angle_of_rotation_degrees = 330
+        Me.RotatedLabel1.FlatStyle = System.Windows.Forms.FlatStyle.Flat
+        Me.RotatedLabel1.Font = New System.Drawing.Font("Tahoma", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.RotatedLabel1.ImageAlign = System.Drawing.ContentAlignment.TopCenter
+        Me.RotatedLabel1.Location = New System.Drawing.Point(166, 28)
+        Me.RotatedLabel1.Margin = New System.Windows.Forms.Padding(0)
+        Me.RotatedLabel1.Name = "RotatedLabel1"
+        Me.RotatedLabel1.Size = New System.Drawing.Size(24, 16)
+        Me.RotatedLabel1.TabIndex = 14
+        Me.RotatedLabel1.Text = "key"
         '
         'RoundedButton2
         '
@@ -245,21 +260,62 @@ Partial Class Form1
         Me.RoundedButton1.Text = "save"
         Me.RoundedButton1.UseVisualStyleBackColor = False
         '
+        'PictureBox1
+        '
+        Me.PictureBox1.BackColor = System.Drawing.Color.Black
+        Me.PictureBox1.Image = Global.dt_noodle.My.Resources.Resources.floating_image
+        Me.PictureBox1.Location = New System.Drawing.Point(8, 253)
+        Me.PictureBox1.Name = "PictureBox1"
+        Me.PictureBox1.Size = New System.Drawing.Size(25, 26)
+        Me.PictureBox1.TabIndex = 3
+        Me.PictureBox1.TabStop = False
+        '
+        'Label5
+        '
+        Me.Label5.BackColor = System.Drawing.Color.Transparent
+        Me.Label5.Font = New System.Drawing.Font("Verdana", 10.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Label5.Location = New System.Drawing.Point(315, 0)
+        Me.Label5.Margin = New System.Windows.Forms.Padding(0)
+        Me.Label5.Name = "Label5"
+        Me.Label5.Size = New System.Drawing.Size(15, 15)
+        Me.Label5.TabIndex = 2
+        Me.Label5.Text = "X"
+        Me.Label5.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
+        '
+        'Button2
+        '
+        Me.Button2.ForeColor = System.Drawing.SystemColors.ControlText
+        Me.Button2.Location = New System.Drawing.Point(165, 0)
+        Me.Button2.Margin = New System.Windows.Forms.Padding(0)
+        Me.Button2.Name = "Button2"
+        Me.Button2.Size = New System.Drawing.Size(26, 20)
+        Me.Button2.TabIndex = 12
+        Me.Button2.Text = "Button2"
+        Me.Button2.UseVisualStyleBackColor = True
+        '
+        'Button1
+        '
+        Me.Button1.ForeColor = System.Drawing.SystemColors.ControlText
+        Me.Button1.Location = New System.Drawing.Point(139, 0)
+        Me.Button1.Margin = New System.Windows.Forms.Padding(0)
+        Me.Button1.Name = "Button1"
+        Me.Button1.Size = New System.Drawing.Size(26, 20)
+        Me.Button1.TabIndex = 11
+        Me.Button1.Text = "Button1"
+        Me.Button1.UseVisualStyleBackColor = True
+        '
         'Form1
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(300, 254)
-        Me.Controls.Add(Me.Label4)
+        Me.BackColor = System.Drawing.Color.White
+        Me.ClientSize = New System.Drawing.Size(330, 284)
         Me.Controls.Add(Me.Button2)
         Me.Controls.Add(Me.Button1)
-        Me.Controls.Add(Me.Panel1)
-        Me.Controls.Add(Me.RoundedButton2)
-        Me.Controls.Add(Me.RoundedButton1)
-        Me.Controls.Add(Me.Label3)
-        Me.Controls.Add(Me.Label2)
-        Me.Controls.Add(Me.Label1)
-        Me.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow
+        Me.Controls.Add(Me.Label5)
+        Me.Controls.Add(Me.Panel2)
+        Me.Controls.Add(Me.PictureBox1)
+        Me.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None
         Me.Icon = CType(resources.GetObject("$this.Icon"), System.Drawing.Icon)
         Me.Location = New System.Drawing.Point(-500, 0)
         Me.MaximizeBox = False
@@ -269,6 +325,8 @@ Partial Class Form1
         Me.Text = "desktop noodle"
         Me.ContextMenuStrip1.ResumeLayout(False)
         Me.ContextMenuStrip2.ResumeLayout(False)
+        Me.Panel2.ResumeLayout(False)
+        CType(Me.PictureBox1, System.ComponentModel.ISupportInitialize).EndInit()
         Me.ResumeLayout(False)
 
     End Sub
@@ -291,10 +349,14 @@ Partial Class Form1
     Friend WithEvents ContextMenuStrip2 As ContextMenuStrip
     Friend WithEvents ToolStripMenuItemShow As ToolStripMenuItem
     Friend WithEvents ToolStripMenuItemUnload As ToolStripMenuItem
-    Friend WithEvents Button1 As Button
-    Friend WithEvents Button2 As Button
     Friend WithEvents Label4 As Label
     Friend WithEvents Timer1 As Timer
     Friend WithEvents ToolStripMenuItemSave As ToolStripMenuItem
     Friend WithEvents ToolStripMenuItemRestore As ToolStripMenuItem
+    Friend WithEvents RotatedLabel1 As RotatedLabel
+    Friend WithEvents Panel2 As Panel
+    Friend WithEvents PictureBox1 As PictureBox
+    Friend WithEvents Label5 As Label
+    Friend WithEvents Button2 As Button
+    Friend WithEvents Button1 As Button
 End Class

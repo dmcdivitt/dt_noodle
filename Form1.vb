@@ -1,29 +1,17 @@
-Imports System.ComponentModel
 Imports System.IO
 Imports System.Runtime.InteropServices
 
 Public Class Form1
-  <DllImport("shell32.dll")> Private Shared Function SHSetKnownFolderPath(
-        <MarshalAs(UnmanagedType.LPStruct)> ByVal rfid As Guid,
-        ByVal dwFlags As UInteger,
-        ByVal hToken As IntPtr,
-        <MarshalAs(UnmanagedType.LPWStr)> ByVal pszPath As String
-    ) As Integer
-  End Function
-  <DllImport("shell32.dll")>
-  Private Shared Sub SHChangeNotify(
-        ByVal wEventId As Integer,
-        ByVal uFlags As Integer,
-        ByVal dwItem1 As IntPtr,
-        ByVal dwItem2 As IntPtr)
-  End Sub
+
   Private Declare Function SetForegroundWindow Lib "user32" (ByVal hwnd As IntPtr) As Boolean
+  Private Declare Function SetWindowText Lib "user32.dll" Alias "SetWindowTextA" (ByVal hWnd As Long, ByVal lpString As String) As Long
   Private Const SHCNE_ASSOCCHANGED As Integer = &H8000000
   Private Const SHCNF_IDLIST As Integer = &H0
   Private _in_edit As Boolean = False, _in_option As Boolean = False, _system_tray_exit As Boolean = False, _panel_control_top As Integer, _config_file$, _cache_folder$
-  Private _msgbox_title$ = My.Application.Info.Title
+  Private _msgbox_title$ = My.Application.Info.Title, _quick_key$ = "1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+  Private _mouse_down As Boolean = False, _mouse_initial_x As Integer, _mouse_initial_y As Integer, label5background As Color, _mcc As MarginColorController
   Public _idx_current As Integer, _idx_edit As Integer, _desktop_path$()
-  Public _option_login As Boolean, _option_tray As Boolean, _option_save As Boolean
+  Public _option_login As Boolean, _option_tray As Boolean, _option_save As Boolean, _option_GUI As Boolean, _option_center As Boolean, _hotkey_indicator As Integer = -1, _hotkey_char$ = ""
 
   Private Sub add_desktop_row(idx As Integer, name$, path$)
     Const c_height As Integer = 20
@@ -39,9 +27,17 @@ Public Class Form1
                    .TextAlign = ContentAlignment.MiddleLeft
                    })
     AddHandler Panel1.Controls(Panel1.Controls.Count - 1).MouseDown, AddressOf d_name_mousedown
+    Dim qk$ = ""
+    If idx < _quick_key.Length Then qk = _quick_key.Substring(idx, 1)
+    Panel1.Controls.Add(New Label With {
+                   .Text = qk,
+                   .TextAlign = ContentAlignment.MiddleLeft,
+                   .Location = New Point(174, _panel_control_top + 4),
+                   .Size = New Drawing.Size(12, c_height - 4)
+                   })
     Panel1.Controls.Add(New RoundedButton With {
                    .BorderRadius = 7,
-                   .Location = New Point(174, _panel_control_top),
+                   .Location = New Point(182, _panel_control_top),
                    .Margin = New Padding(0),
                    .Name = "d_select_" & idx.ToString("000"),
                    .Size = New Drawing.Size(51, c_height),
@@ -51,7 +47,7 @@ Public Class Form1
     AddHandler Panel1.Controls(Panel1.Controls.Count - 1).Click, AddressOf d_select_click
     Panel1.Controls.Add(New RoundedButton With {
                    .BorderRadius = 7,
-                   .Location = New Point(230, _panel_control_top),
+                   .Location = New Point(238, _panel_control_top),
                    .Margin = New Padding(0),
                    .Name = "d_open_" & idx.ToString("000"),
                    .Size = New Drawing.Size(51, c_height),
@@ -124,6 +120,9 @@ Public Class Form1
         If Not _option_login Then .WriteLine("login=no")
         If Not _option_tray Then .WriteLine("tray=no")
         If Not _option_save Then .WriteLine("save=no")
+        If Not _option_GUI Then .WriteLine("gui=no")
+        If Not _option_center Then .WriteLine("center=no")
+        .WriteLine("hotkey=" & _hotkey_char)
         For f1 As Integer = 0 To (_desktop_path.Length - 1)
           If f1 <> skip_for_delete Then .WriteLine("path=" & Panel1.Controls("d_name_" & f1.ToString("000")).Text & "*" & _desktop_path(f1))
         Next f1
@@ -148,23 +147,7 @@ Public Class Form1
 
   Private Sub d_select_click(sender As Object, e As EventArgs)
     Dim idx As Integer = DirectCast(sender, Button).Tag
-    Dim path$ = get_desktop_path$(idx)
-    If path.Length > 0 Then
-      If _option_save Then DesktopIconManager.LayoutSave(cache_file_name(True))
-      DesktopIconManager.FixCopiedFileList()
-      If SHSetKnownFolderPath(New Guid("B4BFCC3A-DB2C-424C-B029-7FE99A87C641"), 0, IntPtr.Zero, path) = 0 Then
-        Panel1.Controls("d_select_" & _idx_current.ToString("000")).Enabled = True
-        _idx_current = idx
-        SHChangeNotify(SHCNE_ASSOCCHANGED, SHCNF_IDLIST, IntPtr.Zero, IntPtr.Zero)
-        If Not DesktopIconManager.WaitForDesktopRender Then MsgBox("a problem occurred waiting for desctop icons to render" & vbCrLf &
-                                                                   "and positions may not be fully restored", vbOK Or vbSystemModal, _msgbox_title)
-        DesktopIconManager.ToggleDesktopPainting(False)
-        DesktopIconManager.LayoutRestore(cache_file_name(False))
-        DesktopIconManager.ToggleDesktopPainting(True)
-        Label2.Text = Panel1.Controls("d_name_" & _idx_current.ToString("000")).Text
-        Panel1.Controls("d_select_" & _idx_current.ToString("000")).Enabled = False
-      End If
-    End If
+    select_desktop(idx)
   End Sub
 
   Public Function edit_save(ByRef name$, ByRef path$) As Boolean
@@ -223,29 +206,40 @@ Public Class Form1
     Return True
   End Function
 
-  Private Sub Form1_FormClosed(sender As Object, e As FormClosedEventArgs) Handles Me.FormClosed
-    NotifyIcon1.Visible = False
-    NotifyIcon1 = Nothing
-  End Sub
-
   Private Sub Form1_FormClosing(sender As Object, e As FormClosingEventArgs) Handles Me.FormClosing
     If (Not _system_tray_exit) AndAlso _option_tray AndAlso e.CloseReason = CloseReason.UserClosing Then
       e.Cancel = True
       toggle_visible()
     Else
       setup_login_load()
+      If _hotkey_indicator > -1 Then unregister_hotkey(Me, _hotkey_indicator)
+      NotifyIcon1.Visible = False
+      NotifyIcon1 = Nothing
+    End If
+  End Sub
+
+  Private Sub Form1_KeyPress(sender As Object, e As KeyPressEventArgs) Handles Me.KeyPress
+    If Visible AndAlso (Not _in_edit) AndAlso (Not _in_option) Then
+      Dim idx = _quick_key.IndexOf(e.KeyChar.ToString)
+      If idx >= 0 AndAlso idx < _desktop_path.Length Then
+        If _option_GUI Then Hide()
+        select_desktop(idx)
+        If _option_GUI Then wipe_panel(True)
+      End If
     End If
   End Sub
 
   Private Sub Form1_Load(sender As Object, e As EventArgs) Handles Me.Load
     Text = _main_window_title
+    SetWindowText(Handle, _main_window_title)
     Button1.Top = 0 - Button1.Height
     Button2.Top = 0 - Button2.Height
     Label4.Text = ChrW(&H2630)
     ContextMenuStrip2.Items.Insert(0, New ToolStripLabel With {.Font = New Font("Segoe UI", 9, FontStyle.Bold),
                                                               .ForeColor = Color.Black,
                                                               .Text = _msgbox_title
-                                                               })
+                                                              })
+    _mcc = New MarginColorController(Me, PictureBox1, Label5, 30)
     _cache_folder = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)
     If Not _cache_folder.EndsWith("\") Then _cache_folder &= "\"
     _cache_folder &= My.Application.Info.AssemblyName & "$$"
@@ -258,17 +252,26 @@ Public Class Form1
     Else
       form_position()
     End If
+    KeyPreview = True
+    label5background = Label5.BackColor
   End Sub
 
   Private Sub form_position()
     Dim desktop_rect As Rectangle = Screen.FromPoint(Cursor.Position).WorkingArea
-    Dim form_left As Integer = Cursor.Position.X
-    Dim form_top As Integer = Cursor.Position.Y - (Height \ 2)
-    If (form_left + Width) > desktop_rect.Right Then form_left = desktop_rect.Right - Width
-    If (form_top + Height) > desktop_rect.Bottom Then form_top = desktop_rect.Bottom - Height
-    If form_left < desktop_rect.Left Then form_left = desktop_rect.Left
-    If form_top < desktop_rect.Top Then form_top = desktop_rect.Top
+    Dim form_left As Integer, form_top As Integer
+    If _option_center Then
+      form_left = (desktop_rect.Right - desktop_rect.Left - Width) \ 2
+      form_top = (desktop_rect.Bottom - desktop_rect.Top - Height) \ 2
+    Else
+      form_left = Cursor.Position.X
+      form_top = Cursor.Position.Y - (Height \ 2)
+      If (form_left + Width) > desktop_rect.Right Then form_left = desktop_rect.Right - Width
+      If (form_top + Height) > desktop_rect.Bottom Then form_top = desktop_rect.Bottom - Height
+      If form_left < desktop_rect.Left Then form_left = desktop_rect.Left
+      If form_top < desktop_rect.Top Then form_top = desktop_rect.Top
+    End If
     Location = New Point(form_left, form_top)
+    _mcc.run()
   End Sub
 
   Private Function get_desktop_path$(idx As Integer)
@@ -280,6 +283,23 @@ Public Class Form1
       Return ""
     End If
     Return _desktop_path(idx)
+  End Function
+
+  Public Sub hotkey_reset()
+    If _hotkey_indicator > -1 Then
+      unregister_hotkey(Me, _hotkey_indicator)
+      _hotkey_indicator = -1
+      _hotkey_char = ""
+    End If
+  End Sub
+
+  Public Function hotkey_set(ch$) As Boolean
+    hotkey_reset()
+    Dim proposed_indicator As Integer = register_hotkey(Me, ch)
+    If proposed_indicator < 0 Then Return False
+    _hotkey_indicator = proposed_indicator
+    _hotkey_char = ch
+    Return True
   End Function
 
   Private Sub Label4_Click(sender As Object, e As EventArgs) Handles Label4.Click
@@ -294,6 +314,18 @@ Public Class Form1
       populate_panel_info()
     End If
     config_save()
+  End Sub
+
+  Private Sub Label5_Click(sender As Object, e As EventArgs) Handles Label5.Click
+    Close()
+  End Sub
+
+  Private Sub Label5_MouseEnter(sender As Object, e As EventArgs) Handles Label5.MouseEnter
+    Label5.BackColor = Color.Red
+  End Sub
+
+  Private Sub Label5_MouseLeave(sender As Object, e As EventArgs) Handles Label5.MouseLeave
+    Label5.BackColor = label5background
   End Sub
 
   Private Sub move_row(direction)
@@ -320,25 +352,12 @@ Public Class Form1
   End Sub
 
   Private Sub NotifyIcon1_MouseUp(sender As Object, e As MouseEventArgs) Handles NotifyIcon1.MouseUp
-    If e.Button = MouseButtons.Left Then
-      If Not Visible Then Show()
-      If _in_edit Then
-        _in_edit = False
-        Form2.Close()
-      End If
-      If _in_option Then
-        _in_option = False
-        Form3.Close()
-      End If
-      form_position()
-      populate_panel()
-      SetForegroundWindow(Handle)
-    End If
+    If e.Button = MouseButtons.Left Then show_form()
   End Sub
 
   Private Sub populate_panel()
     Panel1.SuspendLayout()
-    wipe_panel()
+    wipe_panel(False)
     Dim current_desktop_folder$ = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory)
     If current_desktop_folder.EndsWith("\") Then current_desktop_folder = current_desktop_folder.Substring(0, current_desktop_folder.Length - 1)
     Dim p As Integer, idx As Integer = 0, idx_default_name As Integer = -1, turn_off As Boolean, a$, b$, d_name$, d_path$
@@ -347,6 +366,8 @@ Public Class Form1
     _option_login = True
     _option_tray = True
     _option_save = True
+    _option_GUI = True
+    _option_center = True
     Dim off_noun$() = {"no", "off", "0"}
     With New IO.StreamReader(_config_file)
       While Not .EndOfStream
@@ -370,12 +391,19 @@ Public Class Form1
                     idx += 1
                   End If
                 End If
+              Case "center"
+                _option_center = Not turn_off
+              Case "gui"
+                _option_GUI = Not turn_off
+              Case "hotkey"
+                b = b.Trim.ToUpper
+                If b.Length = 1 Then hotkey_set(b)
               Case "login"
                 _option_login = Not turn_off
-              Case "tray"
-                _option_tray = Not turn_off
               Case "save"
                 _option_save = Not turn_off
+              Case "tray"
+                _option_tray = Not turn_off
             End Select
           End If
         End If
@@ -427,6 +455,26 @@ Public Class Form1
     Panel1.ResumeLayout()
   End Sub
 
+  Private Sub select_desktop(idx As Integer)
+    Dim path$ = get_desktop_path$(idx)
+    If path.Length > 0 Then
+      If _option_save Then DesktopIconManager.LayoutSave(cache_file_name(True))
+      DesktopIconManager.FixCopiedFileList()
+      If SHSetKnownFolderPath(New Guid("B4BFCC3A-DB2C-424C-B029-7FE99A87C641"), 0, IntPtr.Zero, path) = 0 Then
+        Panel1.Controls("d_select_" & _idx_current.ToString("000")).Enabled = True
+        _idx_current = idx
+        SHChangeNotify(SHCNE_ASSOCCHANGED, SHCNF_IDLIST, IntPtr.Zero, IntPtr.Zero)
+        If Not DesktopIconManager.WaitForDesktopRender Then MsgBox("a problem occurred waiting for desctop icons to render" & vbCrLf &
+                                                                   "and positions may not be fully restored", vbOK Or vbSystemModal, _msgbox_title)
+        DesktopIconManager.ToggleDesktopPainting(False)
+        DesktopIconManager.LayoutRestore(cache_file_name(False))
+        DesktopIconManager.ToggleDesktopPainting(True)
+        Label2.Text = Panel1.Controls("d_name_" & _idx_current.ToString("000")).Text
+        Panel1.Controls("d_select_" & _idx_current.ToString("000")).Enabled = False
+      End If
+    End If
+  End Sub
+
   Private Sub setup_login_load()
     Dim wsh = CreateObject("WScript.Shell"), shortcut As Object, good As Boolean = False, exe$ = System.Reflection.Assembly.GetExecutingAssembly().Location, target$, arguments$
     Dim exe_file$ = exe.Substring(exe.LastIndexOf("\") + 1)
@@ -461,14 +509,63 @@ Public Class Form1
     End Try
   End Sub
 
+  Private Declare Function SHSetKnownFolderPath Lib "shell32.dll" (
+        <MarshalAs(UnmanagedType.LPStruct)> ByVal rfid As Guid,
+        ByVal dwFlags As UInteger,
+        ByVal hToken As IntPtr,
+        <MarshalAs(UnmanagedType.LPWStr)> ByVal pszPath As String
+    ) As Integer
+
+  Private Declare Sub SHChangeNotify Lib "shell32.dll" (
+        ByVal wEventId As Integer,
+        ByVal uFlags As Integer,
+        ByVal dwItem1 As IntPtr,
+        ByVal dwItem2 As IntPtr)
+
   Private Sub show_current()
     Label2.Text = Panel1.Controls("d_name_" & _idx_current.ToString("000")).Text
   End Sub
 
+  Private Sub show_form()
+    If Not Visible Then Show()
+    If _in_edit Then
+      _in_edit = False
+      Form2.Close()
+    End If
+    If _in_option Then
+      _in_option = False
+      Form3.Close()
+    End If
+    form_position()
+    populate_panel()
+    SetForegroundWindow(Handle)
+  End Sub
+
   Private Sub Timer1_Tick(sender As Object, e As EventArgs) Handles Timer1.Tick
     Timer1.Enabled = False
-    wipe_panel()
+    wipe_panel(True)
     Hide()
+  End Sub
+
+  Private Sub toggle_visible()
+    If Visible Then
+      If _in_edit Then
+        _in_edit = False
+        Form2.Close()
+      End If
+      If _in_option Then
+        _in_option = False
+        Form3.Close()
+      End If
+      wipe_panel(True)
+      Hide()
+    Else
+      Show()
+      form_position()
+      populate_panel()
+      Threading.Thread.Sleep(100)
+      SetForegroundWindow(Handle)
+    End If
   End Sub
 
   Private Sub ToolStripMenuItemDelete_Click(sender As Object, e As EventArgs) Handles ToolStripMenuItemDelete.Click
@@ -504,27 +601,6 @@ Public Class Form1
     _in_edit = False
   End Sub
 
-  Private Sub toggle_visible()
-    If Visible Then
-      If _in_edit Then
-        _in_edit = False
-        Form2.Close()
-      End If
-      If _in_option Then
-        _in_option = False
-        Form3.Close()
-      End If
-      wipe_panel()
-      Hide()
-    Else
-      Show()
-      form_position()
-      populate_panel()
-      Threading.Thread.Sleep(100)
-      SetForegroundWindow(Handle)
-    End If
-  End Sub
-
   Private Sub ToolStripMenuItemShow_Click(sender As Object, e As EventArgs) Handles ToolStripMenuItemShow.Click
     toggle_visible()
   End Sub
@@ -533,14 +609,36 @@ Public Class Form1
     If Visible Then
       If _in_edit Then Form2.Close()
       If _in_option Then Form3.Close()
-      wipe_panel()
+      wipe_panel(True)
     End If
     _system_tray_exit = True
     Close()
   End Sub
 
-  Private Sub wipe_panel()
+  Private Sub wipe_panel(halt_timer As Boolean)
     While Panel1.Controls.Count > 0 : Dim c As Control = Panel1.Controls(0) : Panel1.Controls.Remove(c) : c.Dispose() : End While
+    If halt_timer Then _mcc.pause()
+  End Sub
+
+  Protected Overrides Sub WndProc(ByRef windows_message As Message)
+    If windows_message.Msg = WM_HOTKEY AndAlso windows_message.WParam.ToInt32() = _hotkey_indicator Then show_form()
+    MyBase.WndProc(windows_message)
+  End Sub
+
+  Private Sub PictureBox1_MouseDown(sender As Object, e As MouseEventArgs) Handles PictureBox1.MouseDown
+    If e.Button = MouseButtons.Left Then
+      _mouse_down = True
+      _mouse_initial_x = e.X + PictureBox1.Left
+      _mouse_initial_y = e.Y + PictureBox1.Top
+    End If
+  End Sub
+
+  Private Sub PictureBox1_MouseMove(sender As Object, e As MouseEventArgs) Handles PictureBox1.MouseMove
+    If _mouse_down Then Me.Location = New Point(Me.Left + (e.X + PictureBox1.Left) - _mouse_initial_x, Me.Top + (e.Y + PictureBox1.Top) - _mouse_initial_y)
+  End Sub
+
+  Private Sub PictureBox1_MouseUp(sender As Object, e As MouseEventArgs) Handles PictureBox1.MouseUp
+    If e.Button = MouseButtons.Left Then _mouse_down = False
   End Sub
 
 End Class

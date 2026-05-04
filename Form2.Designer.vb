@@ -113,7 +113,7 @@ Partial Class Form2
         Me.Name = "Form2"
         Me.ShowInTaskbar = False
         Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent
-        Me.Text = "Form2"
+        Me.Text = "desktop name and path"
         Me.ResumeLayout(False)
         Me.PerformLayout()
 
