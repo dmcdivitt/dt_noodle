@@ -2,7 +2,7 @@ Public Module HotkeyRoutines
 
   Private Declare Function RegisterHotKey Lib "user32.dll" (hWnd As IntPtr, id As Integer, fsModifiers As Integer, vk As Integer) As Boolean
   Private Declare Function UnregisterHotKey Lib "user32.dll" (hWnd As IntPtr, id As Integer) As Boolean
-  Private Const character_list$ = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890-=[]\;',./~"
+  Private Const character_list$ = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890"
   Private _last_identifier_used As Integer = 0
   Public Const WM_HOTKEY As Integer = &H312
   Public Const MOD_CONTROL As Integer = &H2
@@ -23,7 +23,7 @@ Public Module HotkeyRoutines
 
   Public Function register_hotkey(source_form As Form, character$) As Integer
     Dim identifier As Integer = _last_identifier_used + 1
-    If RegisterHotKey(source_form.Handle, identifier, MOD_CONTROL Or MOD_SHIFT, CType([Enum].Parse(GetType(Keys), character.ToUpper()), Keys)) Then
+    If RegisterHotKey(source_form.Handle, identifier, MOD_CONTROL Or MOD_SHIFT, CType(Asc(character), Keys)) Then
       _last_identifier_used = identifier
       Return identifier
     Else
